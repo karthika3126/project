@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiggy - Food Delivery App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .sticky-header {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .offer-badge {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .rating-badge {
+            background: #48bb78;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 sticky-header border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo and Location -->
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <img src="Asset/img/logo.png" alt="Swiggy logo with orange and white branding featuring stylized delivery icon" class="h-8" />
+                    </div>
+                    <div class="hidden md:flex items-center space-x-2 text-gray-700 cursor-pointer hover:text-orange-500">
+                        <i class="fas fa-map-marker-alt text-orange-500"></i>
+                        <span class="font-medium" id="location-text">Chennai,TamilNadu</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-xl mx-4">
+                    <div class="relative">
+                        <input type="text" id="search-input" placeholder="Search for restaurants and food" 
+                               class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                        <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- User Actions -->
+                <div class="flex items-center space-x-6">
+                    <div class="hidden md:flex items-center space-x-2 text-gray-700 hover:text-orange-500 cursor-pointer">
+                        <i class="fas fa-percent"></i>
+                        <span>Offers</span>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-2 text-gray-700 hover:text-orange-500 cursor-pointer">
+                        <i class="fas fa-life-ring"></i>
+                        <span>Help</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-gray-700 hover:text-orange-500 cursor-pointer">
+                        <i class="fas fa-user"></i>
+                        <span class="hidden md:block">Sign In</span>
+                    </div>
+                    <div class="relative">
+                        <div class="flex items-center space-x-2 text-gray-700 hover:text-orange-500 cursor-pointer" id="cart-btn">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="hidden md:block">Cart</span>
+                            <span id="cart-count" class="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="animate-fade-in">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-4">
+                        Hungry?
+                    </h1>
+                    <p class="text-xl mb-6">Order food from favourite restaurants near you.</p>
+                    <div class="flex space-x-4">
+                        <button class="bg-white text-orange-500 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                            Order Now
+                        </button>
+                        <button class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-orange-500 transition-colors">
+                            Explore Menu
+                        </button>
+                    </div>
+                </div>
+                <div class="animate-fade-in">
+                    <img src="Asset/img/swiggy.png" alt="Delicious food spread with various cuisines including pizza, burger, and Asian dishes on a modern table setting" class="w-full rounded-lg shadow-2xl" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Food Categories -->
+    <section class="py-8 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl font-bold mb-6">What's on your mind?</h2>
+            <div class="grid grid-cols-4 md:grid-cols-8 gap-4" id="categories-grid">
+                <!-- Categories will be populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters and Restaurant List -->
+    <section class="py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Filters -->
+            <div class="flex flex-wrap gap-4 mb-6">
+                <button class="filter-btn px-4 py-2 border border-gray-300 rounded-full hover:border-orange-500 transition-colors" data-filter="all">
+                    All Restaurants
+                </button>
+                <button class="filter-btn px-4 py-2 border border-gray-300 rounded-full hover:border-orange-500 transition-colors" data-filter="rating">
+                    Rating 4.0+
+                </button>
+                <button class="filter-btn px-4 py-2 border border-gray-300 rounded-full hover:border-orange-500 transition-colors" data-filter="fast">
+                    Fast Delivery
+                </button>
+                <button class="filter-btn px-4 py-2 border border-gray-300 rounded-full hover:border-orange-500 transition-colors" data-filter="offers">
+                    Great Offers
+                </button>
+                <button class="filter-btn px-4 py-2 border border-gray-300 rounded-full hover:border-orange-500 transition-colors" data-filter="pure-veg">
+                    Pure Veg
+                </button>
+            </div>
+
+            <!-- Restaurant Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="restaurants-grid">
+                <!-- Restaurants will be populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <img src="Asset/img/swiggy_footer_logo.svg" alt="Swiggy footer logo in white with orange accents" class="h-8 mb-4" />
+                    <p class="text-gray-400">India's largest food delivery platform</p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">About</a></li>
+                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                        <li><a href="#" class="hover:text-white">Team</a></li>
+                        <li><a href="#" class="hover:text-white">Swiggy One</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-4">Contact us</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">Help & Support</a></li>
+                        <li><a href="#" class="hover:text-white">Partner with us</a></li>
+                        <li><a href="#" class="hover:text-white">Ride with us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-4">We deliver to:</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Mumbai</li>
+                        <li>Delhi</li>
+                        <li>Bangalore</li>
+                        <li>Hyderabad</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Swiggy Limited. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeCart()"></div>
+        <div class="absolute right-0 top-0 h-full w-96 bg-white shadow-xl">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold">Cart</h2>
+                    <button onclick="closeCart()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="cart-items" class="space-y-4">
+                    <!-- Cart items will be populated here -->
+                </div>
+                <div class="border-t pt-4 mt-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-semibold">Total:</span>
+                        <span id="cart-total" class="font-bold text-xl">₹0</span>
+                    </div>
+                    <button class="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data
+        const categories = [
+            { name: "Pizza", image: "Asset/img/pizza.png", alt: "Delicious pizza slice with melted cheese and toppings on a wooden board" },
+            { name: "Burger", image: "Asset/img/burger.png", alt: "Juicy burger with lettuce, tomato, and cheese on a sesame bun" },
+            { name: "Chinese", image: "Asset/img/chineese.png", alt: "Chinese noodles with vegetables in a traditional bowl with chopsticks" },
+            { name: "Indian", image: "Asset/img/indian.png", alt: "Traditional Indian curry with rice and naan bread on a brass plate" },
+            { name: "Biryani", image: "Asset/img/biriyani.png", alt: "Aromatic biryani rice with meat and spices in a decorated pot" },
+            { name: "Desserts", image: "Asset/img/dessert.png", alt: "Assorted colorful desserts and pastries on an elegant display" },
+            { name: "Rolls", image: "Asset/img/rolls.png", alt: "Wrapped rolls with fresh vegetables and sauce on a plate" },
+            { name: "Sandwich", image: "Asset/img/sandwich.png", alt: "Fresh sandwich with multiple layers of ingredients and garnish" }
+        ];
+
+        const restaurants = [
+            {
+                id: 1,
+                name: "Pizza Hut",
+                cuisine: "Pizza, Italian",
+                rating: 4.2,
+                deliveryTime: "30-35 mins",
+                costForTwo: "₹300",
+                image: "Asset/img/pizaahut.png",
+                imageAlt: "Pizza Hut restaurant interior with red and white branding and pizza display",
+                offer: "50% OFF",
+                tags: ["rating", "offers"],
+                items: [
+                    { name: "Margherita Pizza", price: 299, image: "Asset/img/margareta.png", alt: "Classic margherita pizza with fresh basil and mozzarella" },
+                    { name: "Pepperoni Pizza", price: 399, image: "Asset/img/pepperoni.png", alt: "Pepperoni pizza with spicy meat slices and cheese" }
+                ]
+            },
+            {
+                id: 2,
+                name: "McDonald's",
+                cuisine: "Burger, Fast Food",
+                rating: 4.0,
+                deliveryTime: "20-25 mins",
+                costForTwo: "₹400",
+                image: "Asset/img/mcdonalds_pizza.png",
+                imageAlt: "McDonald's restaurant with iconic golden arches and modern fast food interior",
+                offer: "Buy 1 Get 1",
+                tags: ["fast", "offers"],
+                items: [
+                    { name: "Big Mac", price: 199, image: "Asset/img/bigmac.png", alt: "McDonald's Big Mac burger with special sauce and sesame bun" },
+                    { name: "French Fries", price: 99, image: "Asset/img/frenchfries.png", alt: "Golden crispy McDonald's french fries in red container" }
+                ]
+            },
+            {
+                id: 3,
+                name: "Subway",
+                cuisine: "Sandwich, Healthy",
+                rating: 4.1,
+                deliveryTime: "25-30 mins",
+                costForTwo: "₹350",
+                image: "Asset/img/subway.png",
+                imageAlt: "Subway sandwich counter with fresh vegetables and bread varieties displayed",
+                offer: "20% OFF",
+                tags: ["rating", "offers"],
+                items: [
+                    { name: "Italian BMT", price: 249, image: "Asset/img/itallianbmt.png", alt: "Subway Italian BMT sandwich with salami, pepperoni, and fresh vegetables" },
+                    { name: "Veggie Delite", price: 179, image: "Asset/img/frenchfries.png", alt: "Fresh vegetarian subway sandwich with lettuce, tomatoes, and cucumber" }
+                ]
+            },
+            {
+                id: 4,
+                name: "KFC",
+                cuisine: "Chicken, Fast Food",
+                rating: 4.3,
+                deliveryTime: "25-30 mins",
+                costForTwo: "₹450",
+                image: "Asset/img/kfc.png",
+                imageAlt: "KFC restaurant with red and white Colonel Sanders branding and fried chicken display",
+                offer: "30% OFF",
+                tags: ["rating", "fast", "offers"],
+                items: [
+                    { name: "Zinger Burger", price: 199, image: "Asset/img/zinger.png", alt: "KFC Zinger burger with spicy chicken fillet and crispy coating" },
+                    { name: "Bucket Meal", price: 599, image: "Asset/img/bucketmeal.png", alt: "KFC family bucket with assorted fried chicken pieces and sides" }
+                ]
+            },
+            {
+                id: 5,
+                name: "Domino's Pizza",
+                cuisine: "Pizza, Italian",
+                rating: 4.4,
+                deliveryTime: "30-35 mins",
+                costForTwo: "₹500",
+                image: "Asset/img/dominozz.png",
+                imageAlt: "Domino's pizza kitchen with blue and red branding and pizza ovens in background",
+                offer: "40% OFF",
+                tags: ["rating", "offers"],
+                items: [
+                    { name: "Farmhouse Pizza", price: 349, image: "Asset/img/farmhouse.png", alt: "Domino's farmhouse pizza with vegetables and herbs on thick crust" },
+                    { name: "Chicken Tikka Pizza", price: 449, image: "Asset/img/Chickentikkapizza.png", alt: "Domino's chicken tikka pizza with Indian spiced chicken and onions" }
+                ]
+            },
+            {
+                id: 6,
+                name: "Burger King",
+                cuisine: "Burger, Fast Food",
+                rating: 3.9,
+                deliveryTime: "35-40 mins",
+                costForTwo: "₹350",
+                image: "Asset/img/burgerking.png",
+                imageAlt: "Burger King restaurant with flame-grilled burger promotion and orange and blue decor",
+                offer: "25% OFF",
+                tags: ["offers"],
+                items: [
+                    { name: "Whopper", price: 229, image: "Asset/img/whopper.png", alt: "Burger King Whopper with flame-grilled beef patty and fresh vegetables" },
+                    { name: "Chicken Royale", price: 199, image: "Asset/img/chickenroyalee.png", alt: "Burger King Chicken Royale with crispy chicken fillet and mayo" }
+                ]
+            },
+            {
+                id: 7,
+                name: "Haldiram's",
+                cuisine: "Indian, Vegetarian",
+                rating: 4.5,
+                deliveryTime: "20-25 mins",
+                costForTwo: "₹250",
+                image: "Asset/img/haldriam.png",
+                imageAlt: "Haldiram's traditional Indian sweet shop with colorful sweets and snacks display",
+                offer: "Free Delivery",
+                tags: ["rating", "pure-veg", "fast"],
+                items: [
+                    { name: "Chole Bhature", price: 149, image: "Asset/img/cholebhautri.png", alt: "Haldiram's chole bhature with spicy chickpea curry and fluffy bread" },
+                    { name: "Samosa Chat", price: 89, image: "Asset/img/samosachaat.png", alt: "Crispy samosa chat with yogurt, chutneys, and fresh garnishes" }
+                ]
+            },
+            {
+                id: 8,
+                name: "Taco Bell",
+                cuisine: "Mexican, Fast Food",
+                rating: 4.0,
+                deliveryTime: "30-35 mins",
+                costForTwo: "₹400",
+                image: "Asset/img/tacobell.png",
+                imageAlt: "Taco Bell restaurant with purple and yellow Mexican-themed interior design",
+                offer: "Buy 2 Get 1",
+                tags: ["rating", "offers"],
+                items: [
+                    { name: "Crunchy Taco", price: 99, image: "Asset/img/crunchytaco.png", alt: "Taco Bell crunchy taco with seasoned beef, lettuce, and cheese" },
+                    { name: "Quesadilla", price: 179, image: "Asset/img/quesadilla.png", alt: "Taco Bell quesadilla with melted cheese and grilled tortilla" }
+                ]
+            }
+        ];
+
+        let cart = [];
+        let currentFilter = 'all';
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCategories();
+            renderRestaurants();
+            setupEventListeners();
+        });
+
+        function renderCategories() {
+            const grid = document.getElementById('categories-grid');
+            grid.innerHTML = categories.map(category => `
+                <div class="text-center cursor-pointer hover:scale-105 transition-transform">
+                    <div class="w-16 h-16 mx-auto mb-2 rounded-full overflow-hidden">
+                        <img src="${category.image}" alt="${category.alt}" class="w-full h-full object-cover" />
+                    </div>
+                    <p class="text-sm font-medium text-gray-700">${category.name}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderRestaurants() {
+            const grid = document.getElementById('restaurants-grid');
+            const filteredRestaurants = filterRestaurants();
+            
+            grid.innerHTML = filteredRestaurants.map(restaurant => `
+                <div class="bg-white rounded-lg shadow-md card-hover cursor-pointer" onclick="openRestaurant(${restaurant.id})">
+                    <div class="relative">
+                        <img src="${restaurant.image}" alt="${restaurant.imageAlt}" class="w-full h-48 object-cover rounded-t-lg" />
+                        ${restaurant.offer ? `<div class="absolute top-3 left-3 offer-badge">${restaurant.offer}</div>` : ''}
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1">${restaurant.name}</h3>
+                        <p class="text-gray-600 text-sm mb-2">${restaurant.cuisine}</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="rating-badge">${restaurant.rating} ★</span>
+                                <span class="text-sm text-gray-600">${restaurant.deliveryTime}</span>
+                            </div>
+                            <span class="text-sm text-gray-600">${restaurant.costForTwo} for two</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterRestaurants() {
+            if (currentFilter === 'all') return restaurants;
+            return restaurants.filter(restaurant => restaurant.tags.includes(currentFilter));
+        }
+
+        function setupEventListeners() {
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('bg-orange-500', 'text-white'));
+                    this.classList.add('bg-orange-500', 'text-white');
+                    currentFilter = this.dataset.filter;
+                    renderRestaurants();
+                });
+            });
+
+            // Search functionality
+            document.getElementById('search-input').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const filtered = restaurants.filter(restaurant => 
+                    restaurant.name.toLowerCase().includes(searchTerm) ||
+                    restaurant.cuisine.toLowerCase().includes(searchTerm)
+                );
+                renderFilteredRestaurants(filtered);
+            });
+
+            // Cart button
+            document.getElementById('cart-btn').addEventListener('click', openCart);
+        }
+
+        function renderFilteredRestaurants(filteredRestaurants) {
+            const grid = document.getElementById('restaurants-grid');
+            grid.innerHTML = filteredRestaurants.map(restaurant => `
+                <div class="bg-white rounded-lg shadow-md card-hover cursor-pointer" onclick="openRestaurant(${restaurant.id})">
+                    <div class="relative">
+                        <img src="${restaurant.image}" alt="${restaurant.imageAlt}" class="w-full h-48 object-cover rounded-t-lg" />
+                        ${restaurant.offer ? `<div class="absolute top-3 left-3 offer-badge">${restaurant.offer}</div>` : ''}
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-1">${restaurant.name}</h3>
+                        <p class="text-gray-600 text-sm mb-2">${restaurant.cuisine}</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="rating-badge">${restaurant.rating} ★</span>
+                                <span class="text-sm text-gray-600">${restaurant.deliveryTime}</span>
+                            </div>
+                            <span class="text-sm text-gray-600">${restaurant.costForTwo} for two</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openRestaurant(restaurantId) {
+            const restaurant = restaurants.find(r => r.id === restaurantId);
+            if (!restaurant) return;
+
+            // Create a simple modal for restaurant menu
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-2xl font-bold">${restaurant.name}</h2>
+                            <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <p class="text-gray-600 mb-4">${restaurant.cuisine}</p>
+                        <div class="grid gap-4">
+                            ${restaurant.items.map(item => `
+                                <div class="flex items-center justify-between p-4 border rounded-lg">
+                                    <div class="flex items-center space-x-4">
+                                        <img src="${item.image}" alt="${item.alt}" class="w-16 h-16 object-cover rounded" />
+                                        <div>
+                                            <h3 class="font-semibold">${item.name}</h3>
+                                            <p class="text-orange-500 font-bold">₹${item.price}</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="addToCart(${restaurant.id}, '${item.name}', ${item.price})" 
+                                            class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors">
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function addToCart(restaurantId, itemName, price) {
+            const restaurant = restaurants.find(r => r.id === restaurantId);
+            const existingItem = cart.find(item => item.name === itemName && item.restaurantId === restaurantId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    restaurantId,
+                    restaurantName: restaurant.name,
+                    name: itemName,
+                    price,
+                    quantity: 1
+                });
+            }
+            
+            updateCartUI();
+            
+            // Show success message
+            showNotification(`${itemName} added to cart!`);
+        }
+
+        function updateCartUI() {
+            const cartCount = document.getElementById('cart-count');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            
+            if (totalItems > 0) {
+                cartCount.textContent = totalItems;
+                cartCount.classList.remove('hidden');
+            } else {
+                cartCount.classList.add('hidden');
+            }
+        }
+
+        function openCart() {
+            const modal = document.getElementById('cart-modal');
+            const cartItems = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="text-gray-500 text-center py-8">Your cart is empty</p>';
+                cartTotal.textContent = '₹0';
+            } else {
+                cartItems.innerHTML = cart.map(item => `
+                    <div class="flex items-center justify-between p-3 border rounded">
+                        <div>
+                            <h4 class="font-medium">${item.name}</h4>
+                            <p class="text-sm text-gray-600">${item.restaurantName}</p>
+                            <p class="text-orange-500 font-bold">₹${item.price} × ${item.quantity}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="updateQuantity('${item.name}', ${item.restaurantId}, -1)" 
+                                    class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">-</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="updateQuantity('${item.name}', ${item.restaurantId}, 1)" 
+                                    class="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center">+</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                cartTotal.textContent = `₹${total}`;
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeCart() {
+            document.getElementById('cart-modal').classList.add('hidden');
+        }
+
+        function updateQuantity(itemName, restaurantId, change) {
+            const item = cart.find(item => item.name === itemName && item.restaurantId === restaurantId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    cart = cart.filter(cartItem => cartItem !== item);
+                }
+                updateCartUI();
+                openCart(); // Refresh cart display
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Location selector (placeholder)
+        document.getElementById('location-text').addEventListener('click', function() {
+            const newLocation = prompt('Enter your location:', 'Mumbai, Maharashtra');
+            if (newLocation) {
+                this.textContent = newLocation;
+            }
+        });
+    </script>
+</body>
+</html>
+
